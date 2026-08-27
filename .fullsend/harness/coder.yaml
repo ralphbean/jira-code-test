@@ -4,8 +4,14 @@ base: https://raw.githubusercontent.com/fullsend-ai/agents/20bd058ec31d8cd9a6c34
 trigger: >
   event.source.system == "jira"
     && event.entity.kind == "work_item"
-    && event.transition.kind == "label_changed"
-    && event.transition.label.name == "ready-to-code"
-    && event.transition.label.action == "added"
+    && (
+      (event.transition.kind == "label_changed"
+        && event.transition.label.name == "ready-to-code"
+        && event.transition.label.action == "added")
+      ||
+      (event.transition.kind == "comment_added"
+        && has(event.transition.comment.command)
+        && event.transition.comment.command == "/fs-code")
+    )
 
 allowed_remote_resources: [https://raw.githubusercontent.com/fullsend-ai/agents/]

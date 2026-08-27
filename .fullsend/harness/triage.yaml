@@ -2,7 +2,17 @@
 base: https://raw.githubusercontent.com/fullsend-ai/agents/20bd058ec31d8cd9a6c34bb9d04b5247b0440fce/harness/triage.yaml#sha256=c23eb73bb8a120805ffbe9e79f6b192e21fafadb675ab4d0d78f52f10cc460d1
 
 trigger: >
-  event.source.system == "jira" && event.entity.kind == "work_item"
+  event.source.system == "jira"
+    && event.entity.kind == "work_item"
+    && event.transition.kind == "comment_added"
+    && (
+      (has(event.transition.comment.command)
+        && event.transition.comment.command == "/fs-triage")
+      ||
+      (!has(event.transition.comment.command)
+        && "needs-info" in event.state.labels
+        && !("feature" in event.state.labels))
+    )
 
 allowed_remote_resources: [https://raw.githubusercontent.com/fullsend-ai/agents/]
 
