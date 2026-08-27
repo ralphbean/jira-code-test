@@ -1,0 +1,7 @@
+# .fullsend/harness/coder.yaml
+base: https://raw.githubusercontent.com/fullsend-ai/agents/20bd058ec31d8cd9a6c34bb9d04b5247b0440fce/harness/code.yaml#sha256=9581c975f02bb9d59d2fd1529e4aae1e1bdc764bd1289c1bad64b3d0ae3939b9
+
+trigger: >
+  event.source.system == "jira" && event.entity.kind == "work_item" && "ready-to-code" in event.entity.labels
+
+allowed_remote_resources: [https://raw.githubusercontent.com/fullsend-ai/agents/]

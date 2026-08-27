@@ -11,6 +11,11 @@ roles:
     - fix
     - retro
     - prioritize
+agents:
+    - name: triage
+      source: harness/triage.yaml
+    - name: coder
+      source: harness/coder.yaml
 allowed_remote_resources:
     - https://raw.githubusercontent.com/fullsend-ai/fullsend/
     - https://raw.githubusercontent.com/fullsend-ai/agents/
@@ -19,6 +24,14 @@ create_issues:
         repos:
             - ralphbean/jira-code-test
             - fullsend-ai/fullsend
+
+forge: jira
+
+status_notifications:
+  reaction:
+    start: enabled
+    completed: enabled
+
 inference:
     project: it-gcp-konflux-dev-fullsend
     wif_provider: projects/855403973659/locations/global/workloadIdentityPools/fullsend-inference/providers/gh-ralphbean-jira-code-test

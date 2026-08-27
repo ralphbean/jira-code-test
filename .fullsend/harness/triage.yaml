@@ -1,0 +1,16 @@
+# .fullsend/harness/triage.yaml
+base: https://raw.githubusercontent.com/fullsend-ai/agents/20bd058ec31d8cd9a6c34bb9d04b5247b0440fce/harness/triage.yaml#sha256=c23eb73bb8a120805ffbe9e79f6b192e21fafadb675ab4d0d78f52f10cc460d1
+
+trigger: >
+  event.source.system == "jira" && event.entity.kind == "work_item"
+
+allowed_remote_resources: [https://raw.githubusercontent.com/fullsend-ai/agents/]
+
+overlays:
+  - when: 'runtime.forge == "jira"'
+    env:
+      runner:
+        # KONFLUX doesn't have special transitions - just "closed"
+        JIRA_DUPLICATE_TRANSITION: Closed
+        JIRA_NOT_PLANNED_TRANSITION: Closed
+        JIRA_SPLIT_TRANSITION: Closed
