@@ -47,8 +47,8 @@ jobs:
           fullsend poll \
             --input-driver jira-poll \
             --jira-url "${JIRA_BASE_URL}" \
-            --jira-project KONFLUX \
-            --jql 'project=KONFLUX and type=Bug and statusCategory != Done and labels=fullsend' \
+            --jira-project FSENDAI \
+            --jql 'project=FSENDAI and type=Bug and statusCategory != Done and labels=fullsend' \
             --target-repo "${TARGET_REPO}" \
             --output dispatches.json \
             --fullsend-dir .fullsend
