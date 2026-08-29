@@ -1,5 +1,5 @@
 # .fullsend/harness/coder.yaml
-base: https://raw.githubusercontent.com/fullsend-ai/agents/0b2a0b8ce16b451b46608344ef07e7f0a6e69b73/harness/code.yaml#sha256=a2e6ffeb376e9b131c8615bf411edb2e7c49ca0b5e5495c5d2e5aace51ec3052
+base: https://raw.githubusercontent.com/fullsend-ai/agents/baa849704802fa5b473627839608261cac414ffb/harness/code.yaml#sha256=bb871bfa6ff9b01905d69a2360eddf163e5924aecaa1031a49f3ea97665812ca
 
 trigger: >
   event.source.system == "jira"
