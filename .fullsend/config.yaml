@@ -14,8 +14,8 @@ roles:
 agents:
     - name: triage
       source: harness/triage.yaml
-    - name: coder
-      source: harness/coder.yaml
+    - name: code
+      source: harness/code.yaml
 allowed_remote_resources:
     - https://raw.githubusercontent.com/fullsend-ai/fullsend/
     - https://raw.githubusercontent.com/fullsend-ai/agents/

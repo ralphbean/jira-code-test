@@ -1,4 +1,4 @@
-# .fullsend/harness/coder.yaml
+# .fullsend/harness/code.yaml
 base: https://raw.githubusercontent.com/fullsend-ai/agents/baa849704802fa5b473627839608261cac414ffb/harness/code.yaml#sha256=bb871bfa6ff9b01905d69a2360eddf163e5924aecaa1031a49f3ea97665812ca
 
 trigger: >

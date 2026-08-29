@@ -21,16 +21,16 @@ echo "  New sha256: $TRIAGE_SHA256"
 sed -i "s|base: https://raw.githubusercontent.com/$AGENTS_REPO/[^/]*/harness/$TRIAGE_FILE#sha256=[a-f0-9]*|base: https://raw.githubusercontent.com/$AGENTS_REPO/$LATEST_COMMIT/harness/$TRIAGE_FILE#sha256=$TRIAGE_SHA256|" "$HARNESS_DIR/triage.yaml"
 echo "  Updated $HARNESS_DIR/triage.yaml"
 
-# Update coder.yaml (which uses code.yaml from upstream)
+# Update code.yaml
 echo ""
-echo "Updating coder.yaml..."
+echo "Updating code.yaml..."
 CODE_FILE="code.yaml"
 CODE_URL="https://raw.githubusercontent.com/$AGENTS_REPO/$LATEST_COMMIT/harness/$CODE_FILE"
 CODE_SHA256=$(curl -sL "$CODE_URL" | sha256sum | awk '{print $1}')
 echo "  New sha256: $CODE_SHA256"
 
-sed -i "s|base: https://raw.githubusercontent.com/$AGENTS_REPO/[^/]*/harness/$CODE_FILE#sha256=[a-f0-9]*|base: https://raw.githubusercontent.com/$AGENTS_REPO/$LATEST_COMMIT/harness/$CODE_FILE#sha256=$CODE_SHA256|" "$HARNESS_DIR/coder.yaml"
-echo "  Updated $HARNESS_DIR/coder.yaml"
+sed -i "s|base: https://raw.githubusercontent.com/$AGENTS_REPO/[^/]*/harness/$CODE_FILE#sha256=[a-f0-9]*|base: https://raw.githubusercontent.com/$AGENTS_REPO/$LATEST_COMMIT/harness/$CODE_FILE#sha256=$CODE_SHA256|" "$HARNESS_DIR/code.yaml"
+echo "  Updated $HARNESS_DIR/code.yaml"
 
 echo ""
 echo "Done! All harness files updated to commit $LATEST_COMMIT"
