@@ -2,8 +2,7 @@
 base: https://raw.githubusercontent.com/fullsend-ai/agents/296bc17f14e287d8bf41568266fad512574dfb47/harness/code.yaml#sha256=fec0de4bdbd3f7083be7ab9d7b9972eb3818b11e57e04dc555c9e5ef872efac9
 
 trigger: >
-  event.source.system == "jira"
-    && event.entity.kind == "work_item"
+  event.entity.kind == "work_item"
     && (
       (event.transition.kind == "label_changed"
         && event.transition.label.name == "ready-to-code"
