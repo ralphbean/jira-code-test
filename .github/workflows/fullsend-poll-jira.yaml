@@ -81,7 +81,7 @@ jobs:
     # Resolves fullsend-ai/fullsend#6347
     name: Harness
     needs: poll
-    uses: fullsend-ai/fullsend/.github/workflows/reusable-dispatch.yml@6708d2feb0d2ce2a5cf00520c44682b1d6c7d29e
+    uses: fullsend-ai/fullsend/.github/workflows/reusable-dispatch.yml@v0.39.0
     with:
       matrix: ${{ needs.poll.outputs.matrix }}
       mint_url: ${{ vars.FULLSEND_MINT_URL }}
