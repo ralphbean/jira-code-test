@@ -14,3 +14,7 @@ trigger: >
     )
 
 allowed_remote_resources: [https://raw.githubusercontent.com/fullsend-ai/agents/]
+
+env:
+  runner:
+    CODE_ALLOWED_TARGET_BRANCHES: "main"
