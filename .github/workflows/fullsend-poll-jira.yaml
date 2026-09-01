@@ -25,11 +25,11 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Install fullsend
-        uses: fullsend-ai/fullsend/.github/actions/install-fullsend-cli@agent/6767-tracker-status-routing
+        uses: fullsend-ai/fullsend/.github/actions/install-fullsend-cli@agent/6148-details-to-adf-expand
         with:
           mode: upstream
           workflow_repository: fullsend-ai/fullsend
-          workflow_sha: agent/6767-tracker-status-routing
+          workflow_sha: agent/6148-details-to-adf-expand
 
       - name: Poll Jira
         env:
@@ -75,7 +75,7 @@ jobs:
     # Resolves fullsend-ai/fullsend#6347
     name: Harness
     needs: poll
-    uses: fullsend-ai/fullsend/.github/workflows/reusable-dispatch.yml@agent/6767-tracker-status-routing
+    uses: fullsend-ai/fullsend/.github/workflows/reusable-dispatch.yml@agent/6148-details-to-adf-expand
     with:
       matrix: ${{ needs.poll.outputs.matrix }}
       mint_url: ${{ vars.FULLSEND_MINT_URL }}
