@@ -1,6 +1,20 @@
 # .fullsend/harness/code.yaml
+#
+# Harness definition for the code agent. This file extends an upstream
+# base definition with repo-specific trigger rules, resource access, and
+# environment overrides.
+
+# The upstream harness definition this file extends. The URL points to a
+# specific commit in the fullsend-ai/agents repo, and the #sha256= fragment
+# pins the file's content hash for integrity verification. Use
+# update-harness-refs.sh to update to the latest upstream commit.
 base: https://raw.githubusercontent.com/fullsend-ai/agents/c4e059f9f2b8c48e13b3845992b9b774d41b5de7/harness/code.yaml#sha256=4f0d9425d5ee1fa86e21d3b6d1ac9bd086da2f59de9d80a311f753c00d99303d
 
+# CEL (Common Expression Language) expression that controls when this
+# harness fires. The code agent runs when:
+#   1. The "ready-to-code" label is added to a work item (typically set
+#      by triage after confirming the issue is actionable), OR
+#   2. A comment with the explicit /fs-code command is added.
 trigger: >
   event.entity.kind == "work_item"
     && (
@@ -13,8 +27,14 @@ trigger: >
         && event.transition.comment.command == "/fs-code")
     )
 
+# URL prefixes the harness runner is allowed to fetch during execution.
+# Only resources under these prefixes can be downloaded by the sandbox.
 allowed_remote_resources: [https://raw.githubusercontent.com/fullsend-ai/agents/]
 
+# Environment variables passed to the runner (not conditional — always set).
 env:
   runner:
+    # Restrict which branches the code agent may target when creating PRs.
+    # Only branches in this comma-separated list are accepted; the post-script
+    # rejects PRs targeting any other branch.
     CODE_ALLOWED_TARGET_BRANCHES: "main"

@@ -1,6 +1,23 @@
 # .fullsend/harness/triage.yaml
+#
+# Harness definition for the triage agent. This file extends an upstream
+# base definition with repo-specific trigger rules, resource access, and
+# environment overrides.
+
+# The upstream harness definition this file extends. The URL points to a
+# specific commit in the fullsend-ai/agents repo, and the #sha256= fragment
+# pins the file's content hash for integrity verification. Use
+# update-harness-refs.sh to update to the latest upstream commit.
 base: https://raw.githubusercontent.com/fullsend-ai/agents/c4e059f9f2b8c48e13b3845992b9b774d41b5de7/harness/triage.yaml#sha256=b9097b6042444f80db826fe96a044cb0d94eb6562265daa5782f4a6c5eb42772
 
+# CEL (Common Expression Language) expression that controls when this
+# harness fires. The triage agent runs when:
+#   1. A work item is opened (new issue/ticket), OR
+#   2. A comment is added that is either:
+#      a. The explicit /fs-triage command, OR
+#      b. A non-command comment on an issue labeled "needs-info" but NOT
+#         labeled "feature" (i.e., someone replied with requested info
+#         on a non-feature issue, so triage should re-evaluate).
 trigger: >
   event.entity.kind == "work_item"
     && (
@@ -17,13 +34,20 @@ trigger: >
         ))
     )
 
+# URL prefixes the harness runner is allowed to fetch during execution.
+# Only resources under these prefixes can be downloaded by the sandbox.
 allowed_remote_resources: [https://raw.githubusercontent.com/fullsend-ai/agents/]
 
+# Conditional configuration overlays applied at runtime. Each overlay's
+# "when" field is a CEL expression evaluated against the runtime context.
 overlays:
+  # When running against a Jira forge (as opposed to GitHub Issues),
+  # override the Jira transition names used when closing issues.
   - when: 'runtime.forge == "jira"'
     env:
       runner:
-        # KONFLUX doesn't have special transitions - just "closed"
+        # KONFLUX's Jira project uses a single "Closed" status instead of
+        # separate transitions for duplicate, not-planned, and split outcomes.
         JIRA_DUPLICATE_TRANSITION: Closed
         JIRA_NOT_PLANNED_TRANSITION: Closed
         JIRA_SPLIT_TRANSITION: Closed
