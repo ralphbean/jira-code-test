@@ -1,6 +1,26 @@
 # .fullsend/harness/code.yaml
+#
+# Code harness configuration for the fullsend agent framework.
+# This file defines when and how the code-implementation agent runs
+# in response to events on this repository's work items.
+
+# Base harness definition to inherit from. Points to the upstream
+# code harness in the fullsend-ai/agents repo, pinned to a specific
+# commit. The #sha256=... fragment is a content-integrity hash that
+# the runner verifies before applying the base config. To update to
+# a newer upstream version, use update-harness-refs.sh in the repo root.
 base: https://raw.githubusercontent.com/fullsend-ai/agents/c4e059f9f2b8c48e13b3845992b9b774d41b5de7/harness/code.yaml#sha256=4f0d9425d5ee1fa86e21d3b6d1ac9bd086da2f59de9d80a311f753c00d99303d
 
+# Trigger expression (CEL — Common Expression Language).
+# Determines which events cause the code agent to run.
+#
+# The code agent fires when ALL of the following are true:
+#   1. The event is on a work item (issue or Jira ticket), AND
+#   2. Either:
+#      a. The "ready-to-code" label was just added to the work item
+#         (typically set by a human or the triage agent after review), OR
+#      b. A comment was added containing the /fs-code slash command
+#         (allows manually triggering the code agent on demand).
 trigger: >
   event.entity.kind == "work_item"
     && (
@@ -13,8 +33,17 @@ trigger: >
         && event.transition.comment.command == "/fs-code")
     )
 
+# URL prefixes the harness is allowed to fetch at runtime. The agent
+# sandbox restricts network access; only resources under these prefixes
+# can be loaded (e.g., shared skill files, prompt templates).
 allowed_remote_resources: [https://raw.githubusercontent.com/fullsend-ai/agents/]
 
+# Static environment variables injected into the runner for every
+# code agent invocation.
 env:
   runner:
+    # Restrict which branches the code agent may target when creating
+    # pull requests. A comma-separated list of allowed branch names.
+    # The post-script validates the agent's chosen target_branch against
+    # this list and rejects PRs targeting unlisted branches.
     CODE_ALLOWED_TARGET_BRANCHES: "main"
