@@ -1,6 +1,21 @@
 # .fullsend/harness/triage.yaml
+#
+# Harness definition for the triage agent. This file extends a shared
+# base definition and adds repo-specific trigger rules and overrides.
+
+# The base harness definition to inherit from. The URL points to a
+# pinned commit in the fullsend-ai/agents repo, and the #sha256
+# fragment is an integrity check that ensures the fetched content has
+# not been tampered with.
 base: https://raw.githubusercontent.com/fullsend-ai/agents/c4e059f9f2b8c48e13b3845992b9b774d41b5de7/harness/triage.yaml#sha256=b9097b6042444f80db826fe96a044cb0d94eb6562265daa5782f4a6c5eb42772
 
+# CEL (Common Expression Language) expression that determines when this
+# harness is activated. The triage agent runs when:
+#   1. A new work item (issue) is opened, OR
+#   2. A comment containing the /fs-triage command is added, OR
+#   3. A comment is added on an issue that has the "needs-info" label
+#      but does NOT have the "feature" label (re-triage after the
+#      reporter provides requested information).
 trigger: >
   event.entity.kind == "work_item"
     && (
@@ -17,13 +32,23 @@ trigger: >
         ))
     )
 
+# URLs the harness sandbox is allowed to fetch at runtime. This
+# allowlists the fullsend-ai/agents repo so the base definition and
+# any shared resources it references can be downloaded.
 allowed_remote_resources: [https://raw.githubusercontent.com/fullsend-ai/agents/]
 
+# Conditional configuration overrides. Each overlay has a CEL `when`
+# guard and is applied only when the guard evaluates to true.
 overlays:
+    # Apply these overrides when running against a Jira-backed forge
+    # (as opposed to GitHub Issues or GitLab Issues).
   - when: 'runtime.forge == "jira"'
     env:
       runner:
-        # KONFLUX doesn't have special transitions - just "closed"
+        # Jira transition names used by the triage agent to move issues
+        # to terminal states. KONFLUX's Jira project does not have
+        # separate "Duplicate" / "Not Planned" / "Split" transitions,
+        # so all three map to the generic "Closed" transition.
         JIRA_DUPLICATE_TRANSITION: Closed
         JIRA_NOT_PLANNED_TRANSITION: Closed
         JIRA_SPLIT_TRANSITION: Closed
