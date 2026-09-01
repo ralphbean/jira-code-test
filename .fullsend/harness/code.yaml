@@ -1,6 +1,28 @@
 # .fullsend/harness/code.yaml
+#
+# Harness configuration for the code agent. When an event matches the
+# trigger expression below, the fullsend dispatcher launches a code
+# agent run using this harness to implement the issue.
+
+# base: URL of the upstream harness definition in the fullsend-ai/agents
+# repository, pinned to a specific commit SHA. The fragment after "#sha256="
+# is an integrity hash — the dispatcher verifies the fetched content matches
+# this digest before applying it, preventing tampering or silent upstream
+# changes from altering agent behavior.
 base: https://raw.githubusercontent.com/fullsend-ai/agents/c4e059f9f2b8c48e13b3845992b9b774d41b5de7/harness/code.yaml#sha256=4f0d9425d5ee1fa86e21d3b6d1ac9bd086da2f59de9d80a311f753c00d99303d
 
+# trigger: A CEL (Common Expression Language) expression evaluated against
+# each incoming event. The code agent runs only when this expression
+# evaluates to true. The expression is joined across lines by the YAML ">"
+# folded scalar indicator.
+#
+# This trigger fires when ALL of:
+#   1. The event concerns a work item (issue or ticket), AND
+#   2. Either:
+#      a. The "ready-to-code" label was just added to the work item
+#         (typically applied by the triage agent after successful triage), OR
+#      b. A comment containing the explicit "/fs-code" command was added,
+#         allowing a human to manually dispatch the code agent.
 trigger: >
   event.entity.kind == "work_item"
     && (
@@ -13,8 +35,21 @@ trigger: >
         && event.transition.comment.command == "/fs-code")
     )
 
+# allowed_remote_resources: URL prefixes that the harness is allowed to
+# fetch during execution (e.g., agent definitions, skill files, or shared
+# configurations hosted in the fullsend-ai/agents repository). Any fetch
+# to a URL not matching one of these prefixes is blocked.
 allowed_remote_resources: [https://raw.githubusercontent.com/fullsend-ai/agents/]
 
+# env: Environment variables injected into the runner at execution time.
+# These are not conditional (unlike overlays in triage.yaml) — they apply
+# to every code agent run regardless of forge type.
 env:
   runner:
+    # CODE_ALLOWED_TARGET_BRANCHES: Comma-separated list of branch names
+    # that the code agent is permitted to target when creating pull
+    # requests. The post-script validates the agent's chosen target branch
+    # against this list; if the branch is not allowed, the post-script
+    # auto-corrects to the repository's default branch. Setting this to
+    # "main" restricts all code agent PRs to target the main branch.
     CODE_ALLOWED_TARGET_BRANCHES: "main"
