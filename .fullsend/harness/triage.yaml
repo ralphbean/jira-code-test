@@ -1,6 +1,27 @@
 # .fullsend/harness/triage.yaml
+#
+# Harness configuration for the triage agent. Controls when and how the
+# triage agent is invoked for incoming work items (issues / Jira tickets).
+
+# base: URL of the upstream harness definition that this file extends.
+# The commit SHA pins the harness to a specific version so that upstream
+# changes do not silently alter behavior. The #sha256= fragment is an
+# integrity digest — the runner verifies the fetched content matches
+# before executing.
 base: https://raw.githubusercontent.com/fullsend-ai/agents/c4e059f9f2b8c48e13b3845992b9b774d41b5de7/harness/triage.yaml#sha256=b9097b6042444f80db826fe96a044cb0d94eb6562265daa5782f4a6c5eb42772
 
+# trigger: A CEL (Common Expression Language) expression that determines
+# which events cause this harness to run. The expression must evaluate to
+# true for the agent to be dispatched.
+#
+# This trigger fires when:
+#   1. A work item is opened (new issue / ticket created), OR
+#   2. A comment is added to an existing work item AND either:
+#      a. The comment contains the "/fs-triage" slash command
+#         (explicit triage request), OR
+#      b. The comment is a plain (non-command) reply on a work item
+#         that has the "needs-info" label but NOT the "feature" label
+#         (re-triage after the author provides requested information).
 trigger: >
   event.entity.kind == "work_item"
     && (
@@ -17,13 +38,30 @@ trigger: >
         ))
     )
 
+# allowed_remote_resources: URL prefixes that the harness sandbox is
+# permitted to fetch at runtime. The agent can download files (skills,
+# schemas, shared config) from any URL that starts with one of these
+# prefixes. Requests to other origins are blocked by the sandbox network
+# policy.
 allowed_remote_resources: [https://raw.githubusercontent.com/fullsend-ai/agents/]
 
+# overlays: Conditional configuration overrides that are applied at
+# runtime based on CEL expressions. Each overlay's "when" condition is
+# evaluated against the runtime context; matching overlays merge their
+# settings into the effective configuration.
 overlays:
+    # Apply this overlay when the forge (source tracker) is Jira.
   - when: 'runtime.forge == "jira"'
     env:
       runner:
-        # KONFLUX doesn't have special transitions - just "closed"
+        # JIRA_DUPLICATE_TRANSITION: The Jira workflow transition name
+        # used when closing an issue as a duplicate. Set to "Closed"
+        # because this project (KONFLUX) uses a simplified workflow
+        # without specialized resolution transitions.
         JIRA_DUPLICATE_TRANSITION: Closed
+        # JIRA_NOT_PLANNED_TRANSITION: The Jira workflow transition name
+        # used when closing an issue that will not be worked on.
         JIRA_NOT_PLANNED_TRANSITION: Closed
+        # JIRA_SPLIT_TRANSITION: The Jira workflow transition name used
+        # when closing an issue that has been split into sub-tasks.
         JIRA_SPLIT_TRANSITION: Closed
