@@ -1,6 +1,35 @@
 # .fullsend/harness/code.yaml
+#
+# Harness configuration for the code-implementation agent.
+# This file tells fullsend when to run the code agent and how to
+# configure its runtime environment.
+
+# base: URL of the upstream harness definition that this file extends.
+# Points to a pinned commit in the fullsend-ai/agents repo so that
+# upstream changes do not silently alter behavior.  The #sha256=...
+# fragment is an integrity digest — the runner verifies it before
+# fetching, rejecting the file if the content has been tampered with.
+# To update, run update-harness-refs.sh (recalculates commit + digest).
 base: https://raw.githubusercontent.com/fullsend-ai/agents/c4e059f9f2b8c48e13b3845992b9b774d41b5de7/harness/code.yaml#sha256=4f0d9425d5ee1fa86e21d3b6d1ac9bd086da2f59de9d80a311f753c00d99303d
 
+# trigger: CEL (Common Expression Language) expression evaluated on
+# every repository event.  The code agent runs when this expression
+# evaluates to true.
+#
+# Available context:
+#   event.entity.kind                  – type of entity ("work_item")
+#   event.transition.kind              – what happened ("label_changed",
+#                                        "comment_added")
+#   event.transition.label.name        – name of the label that changed
+#   event.transition.label.action      – "added" or "removed"
+#   event.transition.comment.command   – slash-command in the comment
+#   has(field)                         – CEL built-in; true when field exists
+#
+# This expression fires the code agent when:
+#   1. The "ready-to-code" label is added to a work item (set by the
+#      triage agent once it determines the issue is actionable), OR
+#   2. A comment containing the /fs-code slash-command is posted
+#      (manual dispatch by a maintainer).
 trigger: >
   event.entity.kind == "work_item"
     && (
@@ -13,8 +42,20 @@ trigger: >
         && event.transition.comment.command == "/fs-code")
     )
 
+# allowed_remote_resources: URL-prefix allowlist that controls which
+# external URLs the base harness is permitted to fetch at runtime
+# (e.g., additional agent definitions or prompt files hosted in the
+# fullsend-ai/agents repository).  Any URL not matching a listed
+# prefix is blocked.
 allowed_remote_resources: [https://raw.githubusercontent.com/fullsend-ai/agents/]
 
+# env.runner: environment variables injected into the code agent's
+# runner process.  These override defaults from the base harness.
 env:
   runner:
+    # CODE_ALLOWED_TARGET_BRANCHES: comma-separated list of branches
+    # that the code agent is permitted to target when creating PRs.
+    # The post-script rejects any PR whose target branch is not in
+    # this list.  Setting this to "main" ensures all agent-authored
+    # PRs land on the default branch.
     CODE_ALLOWED_TARGET_BRANCHES: "main"
